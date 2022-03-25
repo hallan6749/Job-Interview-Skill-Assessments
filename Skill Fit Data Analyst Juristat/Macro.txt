@@ -1,0 +1,109 @@
+Sub Macro()
+Dim strKey As Variant
+Dim d As Collection
+Set d = New Collection
+Selection.Find.ClearFormatting
+Selection.Find.Replacement.ClearFormatting
+Application.ScreenUpdating = False
+d.Add Array(".", "."), "."
+d.Add Array(",", ","), ","
+d.Add Array(";", ";"), ";"
+d.Add Array(":", ":"), ":"
+d.Add Array(Chr(150), Chr(150)), Chr(150)
+d.Add Array(Chr(151), Chr(151)), Chr(151)
+d.Add Array(Chr(173), Chr(173)), Chr(173)
+d.Add Array(Chr(215), Chr(215)), Chr(215)
+d.Add Array(Chr(160), Chr(160)), Chr(160)
+d.Add Array(Chr(176), Chr(176)), Chr(176)
+d.Add Array(" l ", " l "), " l "
+d.Add Array(" I ", " I "), " I "
+d.Add Array(" O ", " O "), " O "
+d.Add Array(" I;", " I;"), " I;"
+d.Add Array(" O;", " O;"), " O;"
+d.Add Array("(bydro)", "^&"), "(bydro)"
+d.Add Array("([A-z])([1])", "^&"), "([A-z])([1])"
+d.Add Array("([1])([A-z])", "^&"), "([1])([A-z])"
+d.Add Array("([0-9\\\/\:\.,\-\(\)+×%°])([l])", "^&"), "([0-9\\\/\:\.,\-\(\)+×%°])([l])"
+d.Add Array("([l])([0-9\\\/\:\.,\-\(\)+×%°])", "^&"), "([l])([0-9\\\/\:\.,\-\(\)+×%°])"
+d.Add Array("([0-9\\\/\:\.,\-\(\)+×%°])([I])", "^&"), "([0-9\\\/\:\.,\-\(\)+×%°])([I])"
+d.Add Array("([I])([0-9\\\/\:\.,\-\(\)+×%°])", "^&"), "([I])([0-9\\\/\:\.,\-\(\)+×%°])"
+d.Add Array("([A-z])([0])", "^&"), "([A-z])([0])"
+d.Add Array("([0])([A-z])", "^&"), "([0])([A-z])"
+d.Add Array("([0-9\\\/\:\.,\-\(\)+×%°])([O])", "^&"), "([0-9\\\/\:\.,\-\(\)+×%°])([O])"
+d.Add Array("([O])([0-9\\\/\:\.,\-\(\)+×%°])", "^&"), "([O])([0-9\\\/\:\.,\-\(\)+×%°])"
+d.Add Array("<d", "d"), "<d"
+d.Add Array("<cl", "cl"), "<cl"
+d.Add Array("cl>", "cl"), "cl>"
+d.Add Array("(Original)", "(Original)"), "(Original)"
+d.Add Array("yl)", "yl)"), "yl)"
+d.Add Array("yl-", "yl-"), "yl-"
+d.Add Array("C1-", "^&"), "C1-"
+d.Add Array("(I)", "^&"), "(I)"
+d.Add Array("(II)", "^&"), "(II)"
+d.Add Array("(III)", "^&"), "(III)"
+d.Add Array("- ", "- "), "- "
+d.Add Array(" [A-z]is ", "^&"), " [A-z]is "
+d.Add Array(" [A-z]are ", "^&"), " [A-z]are "
+d.Add Array(" [A-z]and ", "^&"), " [A-z]and "
+d.Add Array(" [A-z]in ", "^&"), " [A-z]in "
+d.Add Array("^#-", "^&"), "^#-"
+With Selection
+If .Type = wdSelectionIP Then Exit Sub
+If InStr(Trim(.Text), " ") = 0 Then Exit Sub
+.Range.Collapse (wdCollapseStart)
+With .Range.Find
+.Format = True
+.MatchWholeWord = True
+.MatchAllWordForms = False
+.MatchWildcards = False
+.Wrap = wdFindStop
+.Forward = True
+.Text = "[\!-/\:-\?\[-`\{-\}‘-”·-]"
+.Replacement.Text = "^&"
+.Replacement.Highlight = True
+.MatchWildcards = True
+Options.DefaultHighlightColorIndex = wdTurquoise
+.Execute Replace:=wdReplaceAll
+.Text = "[ ]{2,}"
+.Replacement.Text = "^&"
+.Replacement.Highlight = True
+.MatchWildcards = True
+Options.DefaultHighlightColorIndex = wdTurquoise
+.Execute Replace:=wdReplaceAll
+For Each strKey In d
+.MatchWildcards = False
+.MatchCase = False
+.Text = strKey(0)
+If .Text = "." Then
+Options.DefaultHighlightColorIndex = wdDarkRed
+ElseIf .Text = "," Then
+Options.DefaultHighlightColorIndex = wdPink
+ElseIf .Text = ":" Then
+Options.DefaultHighlightColorIndex = wdYellow
+ElseIf .Text = ";" Then
+Options.DefaultHighlightColorIndex = wdBrightGreen
+ElseIf .Text = "([A-z])([1])" Or .Text = "([1])([A-z])" Or .Text = "([0-9\\\/\:\.,\-\(\)+×%°])([l])" Or .Text = "([l])([0-9\\\/\:\.,\-\(\)+×%°])" Or .Text = "([0-9\\\/\:\.,\-\(\)+×%°])([I])" Or .Text = "([I])([0-9\\\/\:\.,\-\(\)+×%°])" Or .Text = "([0])([A-z])" Or .Text = "([A-z])([0])" Or .Text = "([O])([0-9\\\/\:\.,\-\(\)+×%°])" Or .Text = "([0-9\\\/\:\.,\-\(\)+×%°])([O])" Or .Text = "(bydro)" Or .Text = "cl>" Then
+Options.DefaultHighlightColorIndex = wdRed
+.MatchWildcards = True
+ElseIf .Text = "(Original)" Or .Text = "(original)" Or .Text = "yl," Or .Text = "yl)" Or .Text = "yl-" Or .Text = "C1-" Or .Text = "^#-" Or .Text = "(I)" Or .Text = "(II)" Or .Text = "(III)" Then
+Options.DefaultHighlightColorIndex = wdNoHighlight
+.MatchCase = True
+Else
+Options.DefaultHighlightColorIndex = wdTurquoise
+End If
+If .Text = "<d" Or .Text = "<cl" Or .Text = " [A-z]is " Or .Text = " [A-z]are " Or .Text = " [A-z]and " Or .Text = " [A-z]in " Then
+Options.DefaultHighlightColorIndex = wdGray25
+.MatchWildcards = True
+End If
+.Replacement.Text = strKey(1)
+.Replacement.Highlight = True
+.Execute Replace:=wdReplaceAll
+Next
+Options.DefaultHighlightColorIndex = wdRed
+End With
+End With
+Set d = Nothing
+Set s = Nothing
+Set strKey = Nothing
+Application.ScreenUpdating = True
+End Sub
